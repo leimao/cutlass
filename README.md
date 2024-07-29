@@ -567,3 +567,39 @@ SPDX-License-Identifier: BSD-3-Clause
   OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
+
+# Lei Mao
+
+## Usages
+
+Docker is used to build and run the CUDA kernels. The custom Docker container is built based on the [NVIDIA NGC CUDA](https://catalog.ngc.nvidia.com/orgs/nvidia/containers/cuda) 12.2.2 Docker container.
+
+Please adjust the base Docker container CUDA version if the host computer has a different CUDA version. Otherwise, weird compilation errors and runtime errors may occur.
+
+### Build Docker Images
+
+To build the custom Docker image, please run the following command.
+
+```bash
+$ docker build -f docker/cutlass.Dockerfile --no-cache --tag=cutlass:3.5 .
+```
+
+### Run Docker Container
+
+To run the custom Docker container, please run the following command.
+
+```bash
+$ docker run -it --rm --gpus device=0 -v $(pwd):/mnt cutlass:3.5
+```
+
+If we want to profile the CUDA kernels using [NVIDIA Nsight Compute](https://leimao.github.io/blog/Docker-Nsight-Compute/), we need to add additional flags `--cap-add=SYS_ADMIN` and `--security-opt seccomp=unconfined` when we run the Docker container.
+
+### Build CUDA Kernels
+
+To build the CUDA kernels, please run the following commands inside the Docker container.
+
+```bash
+$ cmake -B build
+$ cmake --build build --config Release --parallel
+$ cmake --install build
+```
