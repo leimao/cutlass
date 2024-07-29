@@ -594,6 +594,23 @@ $ docker run -it --rm --gpus device=0 -v $(pwd):/mnt cutlass:3.5
 
 If we want to profile the CUDA kernels using [NVIDIA Nsight Compute](https://leimao.github.io/blog/Docker-Nsight-Compute/), we need to add additional flags `--cap-add=SYS_ADMIN` and `--security-opt seccomp=unconfined` when we run the Docker container.
 
+
+
+```bash
+$ git config --global --add safe.directory /mnt
+$ export CUDA_INSTALL_PATH=/usr/local/cuda-12.2
+$ export CUDACXX=${CUDA_INSTALL_PATH}/bin/nvcc
+$ mkdir build && cd build
+$ cmake .. -DCUTLASS_NVCC_ARCHS=80               # compiles for NVIDIA's Ampere Architecture
+$ make test_unit -j2
+```
+
+```bash
+$ cmake -B build -DCUTLASS_NVCC_ARCHS=80 -DCUTLASS_LIBRARY_KERNELS=cutlass3x*
+$ cmake --build build --config Release --parallel 4
+```
+
+
 ### Build CUDA Kernels
 
 To build the CUDA kernels, please run the following commands inside the Docker container.
